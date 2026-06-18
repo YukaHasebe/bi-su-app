@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BI-SU 会員アプリ ｜ エピック・ストーリーマップ v2.0</title>
+<style>
+  :root{
+    --ivory:#F4F1EA;--paper:#FBFAF6;--ink:#2A2620;--ink-soft:#6F6757;--ink-faint:#A39A88;
+    --hair:#E3DCCE;--gold:#A8895A;--gold-deep:#8A6E42;--night:#10100E;
+    --ready:#4E7C59;--partial:#B58A3C;--blocked:#B23B52;--later:#8a8070;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic Medium","Noto Sans JP",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--ivory);color:var(--ink);font-family:var(--sans);line-height:1.8;font-size:15px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 100px;}
+
+  header.hero{
+    background:linear-gradient(160deg,#15140F 0%,#26221A 60%,#312A1E 100%);
+    color:#F4F1EA;padding:56px 22px 48px;text-align:center;
+  }
+  header.hero .inner{max-width:960px;margin:0 auto;}
+  header.hero .kicker{font-family:var(--serif);letter-spacing:.42em;font-size:12px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+  header.hero h1{font-family:var(--serif);font-weight:500;font-size:28px;line-height:1.5;margin:0 0 10px;letter-spacing:.04em;}
+  header.hero p{color:#CDC4B3;font-size:14px;margin:4px 0;}
+  header.hero .meta{margin-top:20px;font-size:12px;color:var(--ink-faint);display:flex;gap:8px 20px;justify-content:center;flex-wrap:wrap;}
+  header.hero .meta span::before{content:"●";color:var(--gold);font-size:7px;vertical-align:middle;margin-right:6px;}
+
+  .stats-bar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:28px 0 0;}
+  .stat{background:rgba(255,255,255,.06);border:1px solid rgba(168,137,90,.25);border-radius:10px;padding:8px 18px;text-align:center;}
+  .stat .num{font-family:var(--serif);font-size:26px;font-weight:500;color:var(--gold);display:block;line-height:1.2;}
+  .stat .label{font-size:11px;color:#B0A996;letter-spacing:.06em;}
+
+  section{margin-top:44px;}
+  .sec-no{font-family:var(--serif);color:var(--gold-deep);letter-spacing:.3em;font-size:11px;display:block;margin-bottom:5px;}
+  h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.03em;margin:0 0 6px;padding-bottom:12px;border-bottom:1px solid var(--hair);}
+  h3{font-family:var(--serif);font-weight:500;font-size:17px;margin:28px 0 10px;color:var(--ink);}
+  p{margin:10px 0;}
+  .lead{color:var(--ink-soft);font-size:14px;}
+
+  .legend{display:flex;gap:8px 16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin:10px 0 16px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .badge{display:inline-block;font-size:10px;padding:2px 9px;border-radius:16px;font-weight:600;letter-spacing:.03em;white-space:nowrap;}
+  .b-go{background:#E6EFE8;color:var(--ready);}
+  .b-part{background:#F6ECD7;color:#8A6A22;}
+  .b-block{background:#F6E1E4;color:var(--blocked);}
+  .b-later{background:#EDE7DB;color:var(--later);}
+  .b-new{background:#E6EFE8;color:var(--ready);font-size:10px;padding:1px 7px;border-radius:5px;white-space:nowrap;display:inline-block;}
+  .b-rev{background:#F6ECD7;color:#8A6A22;font-size:10px;padding:1px 7px;border-radius:5px;white-space:nowrap;display:inline-block;}
+  .b-unch{color:var(--ink-faint);font-size:12px;}
+
+  .epic-section{margin-top:10px;}
+  .epic-card{background:var(--paper);border:1px solid var(--hair);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+  .epic-header{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;}
+  .epic-header:hover{background:#F6F3EC;}
+  .epic-header .eid{font-family:var(--serif);color:var(--gold-deep);font-size:12px;letter-spacing:.12em;font-weight:700;min-width:38px;}
+  .epic-header .ename{font-family:var(--serif);font-weight:500;font-size:16px;flex:1;}
+  .epic-header .ecount{font-size:12px;color:var(--ink-faint);margin-right:6px;}
+  .epic-header .arrow{color:var(--ink-faint);font-size:12px;transition:transform .2s;}
+  .epic-card.open .epic-header .arrow{transform:rotate(90deg);}
+
+  .epic-body{display:none;padding:0 18px 16px;border-top:1px solid var(--hair);}
+  .epic-card.open .epic-body{display:block;}
+  .epic-desc{font-size:13px;color:var(--ink-soft);margin:10px 0 8px;}
+  .dep-tags{margin-bottom:10px;}
+  .dep-tag{display:inline-block;font-size:10px;background:#FDF0E0;color:#A06820;padding:2px 8px;border-radius:6px;margin-right:4px;margin-bottom:3px;}
+
+  .story-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .story-tbl th{text-align:left;padding:8px 10px;background:#F0EBE0;font-family:var(--serif);font-weight:500;font-size:12px;color:var(--ink-soft);letter-spacing:.04em;}
+  .story-tbl td{padding:8px 10px;border-top:1px solid var(--hair);vertical-align:top;}
+  .story-tbl .sid{font-family:var(--serif);color:var(--gold-deep);font-weight:700;font-size:12px;white-space:nowrap;min-width:42px;}
+  .story-tbl .sname{color:var(--ink);}
+  .story-tbl .stag{font-size:10px;padding:1px 7px;border-radius:5px;white-space:nowrap;}
+  .stag-exist{background:#EDE7DB;color:#7A7060;}
+  .stag-new{background:#E6EFE8;color:var(--ready);}
+  .story-tbl .schange{white-space:nowrap;font-size:12px;}
+  .story-tbl tr:hover td{background:#FCFAF4;}
+
+  .callout{border-left:4px solid var(--gold);background:#FAF6EC;border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;}
+  .callout .tag{font-family:var(--serif);color:var(--gold-deep);font-size:11px;letter-spacing:.14em;display:block;margin-bottom:3px;}
+
+  .change-tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin:14px 0;}
+  .change-tbl th{background:#EFE9DC;text-align:left;padding:10px 12px;font-family:var(--serif);font-weight:500;font-size:12px;}
+  .change-tbl td{padding:10px 12px;border-top:1px solid var(--hair);vertical-align:top;}
+
+  .matrix-tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin:14px 0;}
+  .matrix-tbl th{background:#EFE9DC;text-align:left;padding:10px 12px;font-family:var(--serif);font-weight:500;font-size:12px;white-space:nowrap;}
+  .matrix-tbl td{padding:10px 12px;border-top:1px solid var(--hair);vertical-align:top;font-size:12.5px;}
+  .matrix-tbl tr:hover td{background:#FCFAF4;}
+
+  .op-tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin:14px 0;}
+  .op-tbl th{background:#EFE9DC;text-align:left;padding:10px 12px;font-family:var(--serif);font-weight:500;font-size:12px;}
+  .op-tbl td{padding:10px 12px;border-top:1px solid var(--hair);vertical-align:top;}
+  .op-tbl .oid{font-family:var(--serif);color:var(--gold-deep);font-weight:700;font-size:12px;white-space:nowrap;}
+  .op-tbl tr:hover td{background:#FCFAF4;}
+
+  .next-box{background:linear-gradient(160deg,#2A241A,#3a3122);color:#F0E9DA;border-radius:14px;padding:24px 26px;margin-top:16px;}
+  .next-box h3{color:#F4F1EA;margin-top:0;font-size:16px;}
+  .next-box ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;color:#D6CEBE;}
+  .next-box li{margin:6px 0;}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--hair);font-size:11px;color:var(--ink-faint);text-align:center;}
+
+  @media(max-width:720px){
+    header.hero h1{font-size:22px;}
+    .wrap{padding:0 14px 60px;}
+    .stats-bar{gap:8px;}
+    .stat{padding:6px 12px;}
+    .stat .num{font-size:20px;}
+  }
+  @media print{
+    body{background:#fff;}
+    header.hero{background:#26221A !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .epic-card.open .epic-body{display:block !important;}
+    .epic-header .arrow{display:none;}
+    .next-box,.stats-bar,.callout,.dep-tag,.badge,.b-new,.b-rev,.story-tbl th,.story-tbl td,.change-tbl th,.change-tbl td,.matrix-tbl th,.matrix-tbl td,.op-tbl th,.op-tbl td{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    section{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <div class="kicker">BI-SU Membership App</div>
+    <h1>エピック・ストーリーマップ v2.0</h1>
+    <p>モックアップ → Flutter本実装へ進むための、全開発スコープの構造化</p>
+    <p style="color:#A39A88;font-size:12.5px;">― ルイさんレビュー用 ―</p>
+    <div class="meta">
+      <span>2026-06-18 作成（v1.0: 6/17）</span>
+      <span>根拠: 要件定義書v1.3 / 仕様書v1.3 / 開発計画(6/15) / 6/18 要件会議（谷崎・長谷部・山本）</span>
+      <span>練習PJ / 社内検討用</span>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><span class="num">14</span><span class="label">Epic</span></div>
+      <div class="stat"><span class="num">65</span><span class="label">Story</span></div>
+      <div class="stat"><span class="num">32</span><span class="label">既存継承</span></div>
+      <div class="stat"><span class="num">33</span><span class="label">新規追加</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- v1.0 → v2.0 の主な変更点 -->
+  <section>
+    <span class="sec-no">CHANGES</span>
+    <h2>v1.0 → v2.0 の主な変更点</h2>
+    <p class="lead">6/18 要件会議（谷崎・長谷部・山本・Speaker 4）の決定事項を反映。</p>
+
+    <h3>基本方針の転換: ログイン必須 → ハイブリッド方式</h3>
+    <div class="callout">
+      <span class="tag">ハイブリッド方式</span>
+      <strong>ログイン不要で基本機能が使える。連携は任意とし、連携時に特典を強化する。</strong>
+    </div>
+    <ul style="font-size:14px;color:var(--ink-soft);padding-left:20px;">
+      <li>非会員（未ログイン）でもアプリを起動し、店舗機能・ブランドコンテンツ・ストアーズを利用可能</li>
+      <li>会員証・定期情報・購入履歴など会員向け機能はログイン後に解放（未ログイン時はグレーアウト等で案内）</li>
+      <li>初回起動時のログイン/楽楽連携はスキップ可能</li>
+      <li>ローカルにデータを保持し、店舗で「すぐ使える」体験を優先</li>
+    </ul>
+
+    <h3>Epic構成の変更</h3>
+    <table class="change-tbl">
+      <thead><tr><th>変更種別</th><th>Epic</th></tr></thead>
+      <tbody>
+        <tr><td><strong>新設</strong></td><td>EP-5 店舗ポイント / EP-6 チェックイン</td></tr>
+        <tr><td><strong>大幅改訂</strong></td><td>EP-1 認証・連携 / EP-4 会員証（QR→バーコード）</td></tr>
+        <tr><td><strong>改訂</strong></td><td>EP-3 ホーム / EP-10 設定（多言語追加）/ EP-11 基盤 / EP-12 データ層（楽楽API）</td></tr>
+        <tr><td><strong>番号移動</strong></td><td>旧EP-5〜8 → 新EP-7〜10 / 旧EP-9〜12 → 新EP-11〜14</td></tr>
+        <tr><td><strong>変更なし</strong></td><td>EP-2 起動演出 / EP-7 定期 / EP-8 購入履歴 / EP-9 ストアーズ / EP-13 品質 / EP-14 リリース</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ユーザー体験Epic -->
+  <section>
+    <span class="sec-no">USER EXPERIENCE</span>
+    <h2>ユーザー体験エピック（EP-1〜EP-10）</h2>
+    <p class="lead">会員・非会員・スタッフが直接触れる機能。</p>
+    <div class="legend">
+      <span><span class="badge b-go">即着手OK</span></span>
+      <span><span class="badge b-part">一部待ち</span> UI先行可・本番データは決定後</span>
+      <span><span class="badge b-block">要決定</span> 会社の決定が前提</span>
+      <span><span class="badge b-later">後半</span></span>
+      <span>/ <span class="b-new">🆕 NEW</span> = v2.0で追加　<span class="b-rev">🔄 改訂</span> = v2.0で改訂</span>
+    </div>
+
+    <div class="epic-section">
+
+      <!-- EP-1 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-1</span>
+          <span class="ename">認証・楽楽連携・オンボーディング 🔄</span>
+          <span class="ecount">8 stories</span>
+          <span class="badge b-block">要決定</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">ハイブリッド方式に対応。ログインは任意。メール/電話番号で認証コードを受け取り、認証後に楽楽のEC顧客データと紐付けて会員機能を解放する。未ログインでもアプリの基本機能は利用可能。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-06 認証方式</span><span class="dep-tag">OP-26 楽楽API仕様</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-1.1</td><td class="sname">ログインしなくてもアプリの基本機能を使い始める</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-1.2</td><td class="sname">メールアドレスまたは電話番号で認証コードを受け取り、会員機能を解放する</td><td><span class="stag stag-exist">US-1-00</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-1.3</td><td class="sname">認証後、楽楽アカウントとメール照合で紐付け、購入履歴・ランクを引き継ぐ</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-1.4</td><td class="sname">楽楽に未登録の場合、アプリからアカウントを生成して紐付ける</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-1.5</td><td class="sname">機種変更後も同じメールアドレス/電話番号で再認証して復帰する</td><td><span class="stag stag-exist">US-1-00</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-1.6</td><td class="sname">初めてアプリを開いた時、スキップ可能なオンボーディングでアプリ概要を知る</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-1.7</td><td class="sname">ログアウトする</td><td><span class="stag stag-exist">US-5-06</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-1.8</td><td class="sname">アカウントを削除（退会）する</td><td><span class="stag stag-exist">US-5-07</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <span class="tag">要調査</span>
+            Amazon Pay認証を代替手段として利用可能か（会議で調査継続と決定）
+          </div>
+        </div>
+      </div>
+
+      <!-- EP-2 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-2</span>
+          <span class="ename">起動演出</span>
+          <span class="ecount">1 story</span>
+          <span class="badge b-go">即着手OK</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">ランク別ボルネオ・ズーム演出。毎回再生+スキップ確定済み。ログイン済みの場合のみランク演出を再生。未ログイン時は汎用演出またはスキップ。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-19 残演出動画</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-2.1</td><td class="sname">ランクに応じたボルネオ起動演出を毎回楽しむ</td><td><span class="stag stag-exist">US-1-05</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-3 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-3</span>
+          <span class="ename">ホーム・ステータス 🔄</span>
+          <span class="ecount">6 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">ランク表示・進捗バー・ポイント残高・3Dロゴ。未ログイン時はブランドビジュアルと「ログインして会員特典を確認」の案内を表示。ポイント表示は店舗ポイント（EP-5）とEC連動ポイントの両方を想定。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-03 ランク集計細部</span><span class="dep-tag">OP-05 ポイント仕様</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-3.1</td><td class="sname">ステータス・ポイント残高・特典を確認する</td><td><span class="stag stag-exist">US-1-03</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-3.2</td><td class="sname">翌年ステータスへの進捗を確認する</td><td><span class="stag stag-exist">US-1-04</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-3.3</td><td class="sname">年次のステータス切替わりを理解する</td><td><span class="stag stag-exist">US-1-08</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-3.4</td><td class="sname">3Dロゴエンブレムがランクに応じて表示される</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-3.5</td><td class="sname">未ログイン時でもホーム画面でブランドの世界観に触れる</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-3.6</td><td class="sname">店舗ポイントの残高をホームで確認する</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-4 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-4</span>
+          <span class="ename">会員証・店頭提示 🔄</span>
+          <span class="ecount">6 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">バーコード表示を先行実装。未登録ユーザーには仮会員証を発行し、来店ポイントのみ反映。本登録後にランク等を反映。オフライン保証・輝度制御は継続。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-01 会員証仕様</span><span class="dep-tag">OP-27 店舗スキャナ環境</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-4.1</td><td class="sname">レジでバーコードを提示して素早く会員証を見せる</td><td><span class="stag stag-exist">US-1-01</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-4.2</td><td class="sname">電波なし・メンテ中でも会員証を使う</td><td><span class="stag stag-exist">US-1-02</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-4.3</td><td class="sname">（スタッフ）バーコードから会員ID取込</td><td><span class="stag stag-exist">US-1-06</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-4.4</td><td class="sname">バーコードが読めない時に代替手段で本人確認する</td><td><span class="stag stag-exist">US-1-07</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-4.5</td><td class="sname">未登録でも仮会員証を取得し、店舗ポイントを貯める</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-4.6</td><td class="sname">仮会員証で貯めたポイントを、本登録後のアカウントに引き継ぐ</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <span class="tag">要決定</span>
+            全店舗のスキャナ対応状況を棚卸しし、バーコード/QRを最終決定（会議ではバーコード先行）
+          </div>
+        </div>
+      </div>
+
+      <!-- EP-5 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-5</span>
+          <span class="ename">店舗ポイント 🆕</span>
+          <span class="ecount">5 stories</span>
+          <span class="badge b-block">要決定</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">ECの「BASE」ポイントとは独立した店舗専用ポイント。ログインなしでも付与可能。ポイントの用途（クーポン交換等）は後続の企画で決定。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-28 店舗ポイント仕様</span><span class="dep-tag">OP-05 ポイント仕様</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-5.1</td><td class="sname">店舗で買い物や来店時にポイントを受け取る</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-5.2</td><td class="sname">貯まったポイントの残高と履歴を確認する</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-5.3</td><td class="sname">ポイントをクーポンや特典と交換する</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-5.4</td><td class="sname">ポイントの付与理由と種別（来店/購入/連携ボーナス等）がわかる</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-5.5</td><td class="sname">ログインで楽楽連携すると、ポイント付与率が優遇される</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <span class="tag">要決定</span>
+            付与条件・利用条件・失効条件・識別子・重複防止の最小仕様セット
+          </div>
+        </div>
+      </div>
+
+      <!-- EP-6 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-6</span>
+          <span class="ename">チェックイン 🆕</span>
+          <span class="ecount">3 stories</span>
+          <span class="badge b-block">要決定</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">レジ以外で来店を記録する機能。お客様が店内QRを読み取る方式も候補。導入判断は企画側で確定後。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-29 チェックイン仕様</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-6.1</td><td class="sname">店舗に来店したことを記録し、ポイントを受け取る</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-6.2</td><td class="sname">店内のQRコードを読み取ってチェックインする</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-6.3</td><td class="sname">（スタッフ）チェックインの不正利用を防止する</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <span class="tag">要決定</span>
+            チェックイン方式（QR読取/位置情報/Bluetooth等）・不正防止・ポイント付与条件
+          </div>
+        </div>
+      </div>
+
+      <!-- EP-7 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-7</span>
+          <span class="ename">定期情報</span>
+          <span class="ecount">5 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">定期コース一覧・次回お届け・変更導線（ECマイページ誘導）・異常検知。ログイン必須機能。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-24 EC基盤API</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-7.1</td><td class="sname">次回お届けを確認する</td><td><span class="stag stag-exist">US-3-01</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-7.2</td><td class="sname">定期コースの内容を確認する</td><td><span class="stag stag-exist">US-3-02</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-7.3</td><td class="sname">定期の変更手続きへ進む（ECマイページ誘導）</td><td><span class="stag stag-exist">US-3-03</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-7.4</td><td class="sname">解約済みの定期を確認する</td><td><span class="stag stag-exist">US-3-04</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-7.5</td><td class="sname">定期の異常（決済不備等）に気づく</td><td><span class="stag stag-exist">US-3-05</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-8 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-8</span>
+          <span class="ename">購入履歴</span>
+          <span class="ecount">5 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">注文一覧・店頭購入・検索フィルタ・注文ステータス表示。ログイン必須機能。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-15 履歴表示範囲</span><span class="dep-tag">OP-24 EC基盤API</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-8.1</td><td class="sname">過去の注文を確認する</td><td><span class="stag stag-exist">US-4-01</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-8.2</td><td class="sname">店頭購入も履歴で確認する</td><td><span class="stag stag-exist">US-4-02</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-8.3</td><td class="sname">目的の注文を素早く見つける</td><td><span class="stag stag-exist">US-4-03</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-8.4</td><td class="sname">問い合わせ時に注文番号を示す</td><td><span class="stag stag-exist">US-4-04</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-8.5</td><td class="sname">注文のいまの状態を知る</td><td><span class="stag stag-exist">US-4-05</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-9 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-9</span>
+          <span class="ename">ストアーズ</span>
+          <span class="ecount">5 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">店舗一覧・地図・詳細・期間限定・位置情報許可。未ログインでも全機能利用可能。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-11 位置情報UX</span><span class="dep-tag">OP-20 地図方式</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-9.1</td><td class="sname">近くの店舗を探す</td><td><span class="stag stag-exist">US-2-01</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-9.2</td><td class="sname">地図で店舗の位置をつかむ</td><td><span class="stag stag-exist">US-2-02</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-9.3</td><td class="sname">店舗の詳細を見て迷わず行く</td><td><span class="stag stag-exist">US-2-03</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-9.4</td><td class="sname">期間限定ストアを知る</td><td><span class="stag stag-exist">US-2-04</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-9.5</td><td class="sname">位置情報を許可せずに店舗を探す</td><td><span class="stag stag-exist">US-2-05</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-10 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-10</span>
+          <span class="ename">設定・サポート・多言語 🔄</span>
+          <span class="ecount">7 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">ブランドコンテンツ・通知設定・プロフィール/支払い（EC誘導）・問い合わせ・規約。多言語対応（日本語/English）を追加。ブランド理念ページは未ログインでも閲覧可能。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-08 設定v1スコープ</span><span class="dep-tag">OP-09 通知要否</span><span class="dep-tag">OP-14 問い合わせ導線</span><span class="dep-tag">OP-30 多言語対応範囲</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-10.1</td><td class="sname">アナツバメとブランドの物語を知る（未ログインでも可）</td><td><span class="stag stag-exist">US-5-01</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-10.2</td><td class="sname">PUSH通知の配信を設定する</td><td><span class="stag stag-exist">US-5-02</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-10.3</td><td class="sname">登録情報・お支払い方法を変更する（EC誘導）</td><td><span class="stag stag-exist">US-5-03+04</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-10.4</td><td class="sname">問い合わせる</td><td><span class="stag stag-exist">US-5-05</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-10.5</td><td class="sname">規約・プライバシーポリシーを確認する</td><td><span class="stag stag-exist">US-5-08</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-10.6</td><td class="sname">アプリの表示言語を日本語/Englishで切り替える</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-10.7</td><td class="sname">BI-SUの理念・アナツバメの物語を深く知る（コンテンツページ）</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout">
+            <span class="tag">要決定</span>
+            対応言語の範囲、翻訳品質基準・レビュー体制、公開スケジュール
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 技術基盤Epic -->
+  <section>
+    <span class="sec-no">TECHNICAL FOUNDATION</span>
+    <h2>技術基盤エピック（EP-11〜EP-14）</h2>
+    <p class="lead">アプリの土台・データ連携・品質基盤・リリース準備。</p>
+
+    <div class="epic-section">
+
+      <!-- EP-11 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-11</span>
+          <span class="ename">アプリ基盤・デザインシステム 🔄</span>
+          <span class="ecount">5 stories</span>
+          <span class="badge b-go">即着手OK</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">Flutterプロジェクトの骨格・タブナビゲーション・ブランドテーマ・共通UIコンポーネント。ハイブリッド方式に対応し、未ログイン/ログイン済みの画面状態パターンを基盤レベルで設計。</p>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-11.1</td><td class="sname">Flutterプロジェクト初期化・CI/CD環境構築</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-11.2</td><td class="sname">タブナビゲーション・画面遷移フレームワーク構築</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-11.3</td><td class="sname">ブランドテーマ定義（カラー・タイポグラフィ・アイコン）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-11.4</td><td class="sname">共通UIコンポーネント整備（ボタン・カード・モーダル等）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-11.5</td><td class="sname">未ログイン/ログイン済みの画面状態管理パターン設計</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-12 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-12</span>
+          <span class="ename">データ層・API連携 🔄</span>
+          <span class="ecount">6 stories</span>
+          <span class="badge b-part">一部待ち</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">データモデル・API契約・モックサーバ・オフラインキャッシュ。楽楽API連携を新たに追加。カスタマークリエイト・メール照合・データ引き継ぎの技術仕様を含む。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-24 EC基盤API</span><span class="dep-tag">OP-26 楽楽API仕様</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-12.1</td><td class="sname">データモデル定義（会員・定期・注文・店舗・ポイント）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-rev">🔄</span></td></tr>
+              <tr><td class="sid">S-12.2</td><td class="sname">API契約定義 + モックサーバ構築</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-12.3</td><td class="sname">オフラインキャッシュ・データ同期戦略</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-12.4</td><td class="sname">画面状態パターン共通実装（空/読込中/エラー/圏外）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-12.5</td><td class="sname">楽楽API連携基盤（メール照合・顧客作成・データ引き継ぎ）</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+              <tr><td class="sid">S-12.6</td><td class="sname">店舗ポイントデータ管理（付与/照会/利用のAPI設計）</td><td><span class="stag stag-new">NEW</span></td><td class="schange"><span class="b-new">🆕</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-13 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-13</span>
+          <span class="ename">横断品質・計測</span>
+          <span class="ecount">4 stories</span>
+          <span class="badge b-go">即着手OK</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">アクセシビリティ・KPI計測・セキュリティ基盤・パフォーマンス。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-13 KPI設計</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-13.1</td><td class="sname">アクセシビリティ対応（文字サイズ・コントラスト・reduced-motion）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-13.2</td><td class="sname">KPI計測イベント設計・SDK実装</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-13.3</td><td class="sname">セキュリティ基盤（データ暗号化・認証トークン管理）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-13.4</td><td class="sname">パフォーマンス基準（起動3秒目標・画像最適化）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EP-14 -->
+      <div class="epic-card open">
+        <div class="epic-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="eid">EP-14</span>
+          <span class="ename">リリース準備</span>
+          <span class="ecount">4 stories</span>
+          <span class="badge b-later">後半</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="epic-body">
+          <p class="epic-desc">開発終盤の仕上げ。</p>
+          <div class="dep-tags"><span class="dep-tag">OP-16 素材権利</span><span class="dep-tag">OP-22 対応OS</span><span class="dep-tag">OP-25 配信計画</span></div>
+          <table class="story-tbl">
+            <thead><tr><th>ID</th><th>ストーリー</th><th>出典</th><th>変更</th></tr></thead>
+            <tbody>
+              <tr><td class="sid">S-14.1</td><td class="sname">試作専用要素の除去（ランク切替UI・ダミー注記等）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-14.2</td><td class="sname">素材権利確認・AI透かし除去</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-14.3</td><td class="sname">ストア申請・配信準備（iOS App Store / Google Play）</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+              <tr><td class="sid">S-14.4</td><td class="sname">対応OS最低バージョン確定・互換性テスト</td><td><span class="stag stag-new">NEW(v1)</span></td><td class="schange"><span class="b-unch">―</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- オープン課題 -->
+  <section>
+    <span class="sec-no">OPEN ISSUES</span>
+    <h2>v2.0 で追加されたオープン課題 (OP)</h2>
+    <p class="lead">v1.0の既存OP（OP-01〜OP-25）に加え、6/18会議で新たに発生した課題。</p>
+    <table class="op-tbl">
+      <thead><tr><th>ID</th><th>課題</th><th>優先度</th><th>担当</th></tr></thead>
+      <tbody>
+        <tr><td class="oid">OP-26</td><td>楽楽API仕様（顧客作成/メール照合/データ引き継ぎ/マイページ連携）</td><td>★★★</td><td>山本</td></tr>
+        <tr><td class="oid">OP-27</td><td>全店舗スキャナ環境の棚卸し（バーコード/QR最終決定）</td><td>★★</td><td>要確認</td></tr>
+        <tr><td class="oid">OP-28</td><td>店舗ポイント仕様（付与/利用/失効/識別子/重複防止）</td><td>★★★</td><td>企画側</td></tr>
+        <tr><td class="oid">OP-29</td><td>チェックイン機能仕様（方式/不正防止/ポイント付与条件）</td><td>★★</td><td>企画側</td></tr>
+        <tr><td class="oid">OP-30</td><td>多言語対応範囲（対象言語/翻訳品質基準/レビュー体制/スケジュール）</td><td>★</td><td>要確認</td></tr>
+        <tr><td class="oid">OP-31</td><td>Amazon Pay認証の利用可否</td><td>★</td><td>山本</td></tr>
+        <tr><td class="oid">OP-32</td><td>祇園店舗のPR制約に準拠したアプリ内文言・同意文言</td><td>★</td><td>企画側</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ログイン状態別の機能アクセスマトリクス -->
+  <section>
+    <span class="sec-no">ACCESS MATRIX</span>
+    <h2>ログイン状態別の機能アクセスマトリクス</h2>
+    <p class="lead">ハイブリッド方式の設計指針。各機能の利用可否を明確化。</p>
+    <table class="matrix-tbl">
+      <thead><tr><th>機能</th><th>未ログイン</th><th>ログイン済み（楽楽未連携）</th><th>ログイン済み（楽楽連携済）</th></tr></thead>
+      <tbody>
+        <tr><td>起動演出</td><td>汎用演出</td><td>ランク別演出</td><td>ランク別演出</td></tr>
+        <tr><td>ホーム</td><td>ブランドビジュアル+連携案内</td><td>ステータス表示（ポイント限定）</td><td>全情報表示</td></tr>
+        <tr><td>仮会員証</td><td>&#10003; バーコード発行</td><td>―</td><td>―</td></tr>
+        <tr><td>会員証</td><td>―</td><td>&#10003; バーコード</td><td>&#10003; バーコード</td></tr>
+        <tr><td>店舗ポイント</td><td>&#10003; 付与・照会</td><td>&#10003; 付与・照会</td><td>&#10003; 付与・照会（優遇率）</td></tr>
+        <tr><td>チェックイン</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+        <tr><td>定期情報</td><td>&#128274; グレーアウト</td><td>&#128274;（楽楽連携を案内）</td><td>&#10003;</td></tr>
+        <tr><td>購入履歴</td><td>&#128274; グレーアウト</td><td>&#128274;（楽楽連携を案内）</td><td>&#10003;</td></tr>
+        <tr><td>ストアーズ</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+        <tr><td>ブランドコンテンツ</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+        <tr><td>多言語切替</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+        <tr><td>通知設定</td><td>&#128274;</td><td>&#10003;</td><td>&#10003;</td></tr>
+        <tr><td>問い合わせ</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 次のステップ -->
+  <section>
+    <span class="sec-no">NEXT</span>
+    <h2>次のステップ</h2>
+    <div class="next-box">
+      <h3>6/19 期限の対応</h3>
+      <ul>
+        <li>本エピック・ストーリーマップv2.0のレビュー・合意</li>
+        <li>要件定義書のv2.0改訂（ハイブリッド方式・新機能の反映）</li>
+        <li>画面一覧・画面遷移の改訂（未ログイン状態の追加）</li>
+        <li>受け入れ条件の改訂（新規14ストーリー分の追加）</li>
+        <li>Gitリポジトリの関係者アクセス確認</li>
+      </ul>
+    </div>
+    <div class="next-box" style="margin-top:12px;">
+      <h3>ルイさんレビュー後の作業</h3>
+      <ul>
+        <li><strong>Epic構成の合意</strong> — 14 Epic x 65 Story の粒度・分け方に過不足がないか</li>
+        <li><strong>新規ストーリー33本のDoD作成</strong> — 既存32本は受け入れ条件付き。新規分を追加</li>
+        <li><strong>タスク分解</strong> — 各ストーリーを1〜2日の作業単位に分割</li>
+        <li><strong>優先順位の確定</strong> — 推奨: EP-11 → EP-12 → EP-2 → EP-4/5 の順</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    BI-SU 会員アプリ｜エピック・ストーリーマップ v2.0　2026-06-18<br>
+    出典：要件定義書 v1.3 / 仕様書 v1.3 / 開発計画(2026-06-15) / 6/18 要件会議議事録 / 既存ユーザーストーリー(2026-06-12)<br>
+    ※練習プロジェクト・社内検討用
+  </footer>
+
+</div>
+
+<script>
+// 印刷時は全Epic展開
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.epic-card').forEach(c => c.classList.add('open'));
+});
+</script>
+
+</body>
+</html>
