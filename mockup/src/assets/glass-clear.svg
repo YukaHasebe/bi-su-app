@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-45 -45 1170 1170">
+<defs>
+<path id="glass-clear-logo" d="M517 0L564 0L625 6L678 17L723 31L767 49L818 76L856 101L880 121L882 121L886 126L888 126L901 139L903 139L941 177L941 179L949 186L949 188L954 192L954 194L959 198L959 200L979 224L1010 272L1033 317L1050 359L1067 417L1074 453L1080 508L1080 572L1077 606L1067 663L1050 721L1033 763L1010 808L979 856L959 880L959 882L949 892L949 894L941 901L941 903L903 941L901 941L888 954L886 954L882 959L880 959L856 979L818 1004L767 1031L723 1049L666 1066L611 1076L564 1080L517 1080L456 1074L403 1063L355 1048L316 1032L258 1001L218 974L190 950L188 950L181 942L179 942L138 901L138 899L125 886L125 884L101 855L72 810L51 770L29 716L17 676L6 622L1 575L0 529L5 465L15 412L28 367L46 321L72 270L101 225L125 196L125 194L138 181L138 179L179 138L181 138L188 130L190 130L218 106L268 73L316 48L355 32L415 14L470 4ZM510 56L571 56L610 60L652 68L700 82L740 98L788 123L823 146L842 162L844 162L848 167L850 167L854 172L856 172L888 202L888 204L914 231L914 233L937 261L969 313L990 358L1006 404L1017 450L1024 503L1025 561L1022 598L1015 640L1002 689L984 736L963 778L937 819L914 847L914 849L909 853L909 855L878 888L876 888L864 901L862 901L839 922L801 949L775 963L774 965L762 970L761 972L719 991L668 1008L623 1018L572 1024L534 1025L478 1021L433 1013L378 997L332 978L298 960L255 932L235 915L233 915L229 910L227 910L221 903L219 903L187 872L187 870L177 861L177 859L154 833L126 792L105 754L86 710L70 659L61 615L56 568L56 512L60 472L69 425L82 381L98 341L120 298L148 255L166 234L166 232L171 228L171 226L177 221L177 219L208 187L210 187L219 177L221 177L247 154L283 129L330 103L378 83L417 71L471 60ZM531 111L533 111L540 127L551 145L598 238L600 238L616 223L636 213L654 209L675 209L696 214L710 221L720 228L733 241L741 253L749 272L751 284L914 794L913 796L910 793L910 791L875 751L871 744L866 740L866 738L861 734L861 732L856 728L856 726L816 680L812 673L807 669L807 667L802 663L802 661L762 615L758 608L753 604L753 602L748 598L748 596L743 592L743 590L708 550L704 543L699 539L699 537L694 533L694 531L689 527L689 525L684 521L684 519L679 515L679 513L674 509L674 507L654 485L650 478L621 445L596 552L545 789L546 809L574 1010L532 845L529 849L490 1008L519 790L443 445L437 450L437 452L412 480L408 487L403 491L403 493L398 497L398 499L368 533L364 540L359 544L359 546L354 550L354 552L349 556L349 558L344 562L344 564L319 592L315 599L310 603L310 605L305 609L305 611L300 615L300 617L275 645L271 652L266 656L266 658L261 662L261 664L256 668L256 670L251 674L251 676L231 698L227 705L222 709L222 711L217 715L217 717L212 721L212 723L207 727L207 729L202 733L202 735L197 739L183 758L150 796L321 256L335 236L349 224L368 214L389 209L410 209L433 215L452 226L465 239Z" fill-rule="evenodd"></path>
+<linearGradient id="glass-clear-body" gradientUnits="userSpaceOnUse" x1="200" y1="60" x2="880" y2="1020">
+  <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"></stop>
+  <stop offset="0.5" stop-color="#d2d8e2" stop-opacity="0.34"></stop>
+  <stop offset="1" stop-color="#969eac" stop-opacity="0.42"></stop>
+</linearGradient>
+<linearGradient id="glass-clear-spec" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1080" y2="1080">
+  <stop offset="0" stop-color="#ffffff" stop-opacity="0"></stop>
+  <stop offset="0.18" stop-color="#ffffff" stop-opacity="0.30"></stop>
+  <stop offset="0.32" stop-color="#ffffff" stop-opacity="0"></stop>
+  <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"></stop>
+  <stop offset="0.68" stop-color="#ffffff" stop-opacity="0.15"></stop>
+  <stop offset="0.8" stop-color="#ffffff" stop-opacity="0"></stop>
+</linearGradient>
+<filter id="glass-clear-rimTop" x="-10%" y="-10%" width="120%" height="120%">
+  <feOffset in="SourceAlpha" dx="5" dy="9" result="off"></feOffset>
+  <feComposite in="SourceAlpha" in2="off" operator="out" result="rim"></feComposite>
+  <feGaussianBlur in="rim" stdDeviation="2.5" result="rimb"></feGaussianBlur>
+  <feFlood flood-color="#ffffff" flood-opacity="0.95" result="fl"></feFlood>
+  <feComposite in="fl" in2="rimb" operator="in" result="col"></feComposite>
+  <feComposite in="col" in2="SourceAlpha" operator="in"></feComposite>
+</filter>
+<filter id="glass-clear-rimBot" x="-10%" y="-10%" width="120%" height="120%">
+  <feOffset in="SourceAlpha" dx="-7" dy="-11" result="off"></feOffset>
+  <feComposite in="SourceAlpha" in2="off" operator="out" result="rim"></feComposite>
+  <feGaussianBlur in="rim" stdDeviation="7" result="rimb"></feGaussianBlur>
+  <feFlood flood-color="#ffffff" flood-opacity="0.75" result="fl"></feFlood>
+  <feComposite in="fl" in2="rimb" operator="in" result="col"></feComposite>
+  <feComposite in="col" in2="SourceAlpha" operator="in"></feComposite>
+</filter>
+<filter id="glass-clear-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="16"></feGaussianBlur></filter>
+<filter id="glass-clear-b1" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.2"></feGaussianBlur></filter>
+</defs>
+<use href="#glass-clear-logo" fill="#1c1f24" opacity="0.28" transform="translate(6,26)" filter="url(#glass-clear-soft)"></use>
+<g filter="url(#glass-clear-b1)">
+  <use href="#glass-clear-logo" fill="#4a505a" opacity="0.30" transform="translate(6,14)"></use>
+  <use href="#glass-clear-logo" fill="#4a505a" opacity="0.30" transform="translate(4.5,11)"></use>
+  <use href="#glass-clear-logo" fill="#4a505a" opacity="0.30" transform="translate(3,8)"></use>
+  <use href="#glass-clear-logo" fill="#4a505a" opacity="0.30" transform="translate(1.5,4)"></use>
+</g>
+<use href="#glass-clear-logo" fill="url(#glass-clear-body)"></use>
+<use href="#glass-clear-logo" filter="url(#glass-clear-rimBot)"></use>
+<use href="#glass-clear-logo" filter="url(#glass-clear-rimTop)"></use>
+<use href="#glass-clear-logo" fill="url(#glass-clear-spec)"></use>
+</svg>
