@@ -1,0 +1,51 @@
+name: Widgetbook Cloud
+
+# BI-SU 会員アプリの Widgetbook を Widgetbook Cloud (app.widgetbook.io) へ公開する。
+# 事前準備（1回だけ・GitHub / Widgetbook Cloud の画面で実施）:
+#   1. Widgetbook Cloud でこのリポジトリ (YukaHasebe/bi-su-app) を接続してプロジェクト作成
+#   2. プロジェクト設定の API Key をコピー
+#   3. GitHub の Settings > Secrets and variables > Actions に
+#      `WIDGETBOOK_API_KEY` という名前で登録
+# これらが済むと、main / feat ブランチへの push と PR で自動的にビルドが公開される。
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  widgetbook-cloud:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bisu_app # Flutter プロジェクトはリポジトリ直下ではなく bisu_app/ 配下
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Widgetbook CLI がブランチ/コミット/差分を検出するため全履歴が必要
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      # 手書き Widgetbook（コード生成なし）のため build_runner は不要。
+      # エントリは lib/widgetbook/main.dart。
+      - name: Build Widgetbook (web)
+        run: flutter build web -t lib/widgetbook/main.dart
+
+      - name: Install Widgetbook CLI
+        run: dart pub global activate widgetbook_cli
+
+      - name: Push build to Widgetbook Cloud
+        run: widgetbook cloud build push --api-key ${{ secrets.WIDGETBOOK_API_KEY }}
